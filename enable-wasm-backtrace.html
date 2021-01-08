@@ -1,0 +1,434 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js dark">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Enable WASM Backtrace - The PatractLabs Dev Blog</title>
+        
+        
+
+
+        <!-- Custom HTML head -->
+        
+
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
+        <link rel="shortcut icon" href="favicon.png">
+        
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        
+        <link rel="stylesheet" href="css/print.css" media="print">
+        
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "ayu" : "dark";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('dark')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">The Patract Labs Dev Blog</a></li><li class="spacer"></li><li class="chapter-item expanded "><a href="enable-wasm-backtrace.html" class="active"><strong aria-hidden="true">1.</strong> Enable WASM Backtrace</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">The PatractLabs Dev Blog</h1>
+
+                    <div class="right-buttons">
+                        
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
+                        <a href="https://github.com/patractlabs/blog" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#enable-wasm-backtrace" id="enable-wasm-backtrace">Enable WASM backtrace</a></h1>
+<p>Just implemented WASM backtrace for the contract system of substrate these days, here is a panicked flipper to show how it works:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span>#![cfg_attr(not(feature = &quot;std&quot;), no_std)]
+
+<span class="boring">fn main() {
+</span>use ink_lang as ink;
+
+#[ink::contract]
+mod flipper {
+    #[ink(storage)]
+    pub struct Flipper {
+        value: bool,
+    }
+
+    impl Flipper {
+        #[ink(constructor)]
+        pub fn new(init_value: bool) -&gt; Self {
+            panic!(&quot;Flip failed!&quot;);
+            Self { value: init_value }
+        }
+
+        #[ink(constructor)]
+        pub fn default() -&gt; Self {
+            Self::new(Default::default())
+        }
+
+        // This message will emit `ContractTrapped` everytime 
+        // people call it from node.
+        #[ink(message)]
+        pub fn flip(&amp;mut self) {
+            self.value = !self.value;
+        }
+
+        #[ink(message)]
+        pub fn get(&amp;self) -&gt; bool {
+            self.value
+        }
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h4><a class="header" href="#before-wasm-backtrace" id="before-wasm-backtrace">Before WASM Backtrace</a></h4>
+<p>Let's see how the panicked flipper panicing in the <a href="https://github.com/paritytech/substrate/blob/885c1f17cb6fcb542d7977ea3bd2136b9466c921/frame/contracts/src/wasm/runtime.rs#L378">pallet-contracts/src/wasm/runtime.rs#L378</a>.</p>
+<pre><code class="language-txt">Trap {
+    kind: DummyHostError,
+}
+</code></pre>
+<h4><a class="header" href="#after-wasm-backtrace" id="after-wasm-backtrace">After WASM Backtrace</a></h4>
+<p>And the panic could be like:</p>
+<pre><code class="language-txt">Trap {
+    kind: Unreachable,
+    wasm_trace: [
+        &quot;core::panicking::panic[130]&quot;,
+        &quot;tt::tt::_::&lt;impl tt::tt::Tt&gt;::new[162]&quot;,
+        &quot;tt::tt::_::&lt;impl tt::tt::Tt&gt;::default[163]&quot;,
+        ::tt::_::__ink_Constr&lt;[(); 3792844650]&gt; as ink_lang::traits::Constructor&gt;::CALLABLE::{{closure}}[46]&quot;,
+        ::ops::function::FnOnce::call_once[45]&quot;,
+        ::tt::_::_::__ink_ConstructorDispatchEnum as ink_lang::dispatcher::Execute&gt;::execute::{{closure}}[150]&quot;,
+        _lang::dispatcher::execute_constructor[149]&quot;,
+        &quot;&lt;tt::tt::_::_::__ink_ConstructorDispatchEnum as ink_lang::dispatcher::Execute&gt;::execute[159]&quot;,
+        &quot;tt::tt::_::&lt;impl ink_lang::contract::DispatchUsingMode for tt::tt::Tt&gt;::dispatch_using_mode[156]&quot;,
+        &quot;deploy[155]&quot;,
+        &quot;&lt;unknown&gt;[596]&quot;,
+    ],
+}
+</code></pre>
+<p>Let's track out how to reach the effect above!</p>
+<h2><a class="header" href="#1-submit-wasm-files-contains-debug-info" id="1-submit-wasm-files-contains-debug-info">1. Submit WASM files contains debug info</a></h2>
+<ul>
+<li>PR:     <a href="https://github.com/paritytech/cargo-contract/pull/131">paritytech/cargo-contract#131</a></li>
+<li>Source: <a href="https://github.com/patractlabs/cargo-contract">patractlabs/cargo-contract</a></li>
+</ul>
+<p>Frist of all, we have to submit <strong>wasm files which contain the debug info</strong> that the on-chain
+side can parse and get the panic errors.</p>
+<p>Currently, <a href="https://github.com/patractlabs/cargo-contract">parity/cargo-contract</a> trims debug
+info while building contracts, we can get them back with the following steps.</p>
+<h3><a class="header" href="#11-keep-name-section-from-striping" id="11-keep-name-section-from-striping">1.1 Keep name section from striping</a></h3>
+<p>The name section has been striped at <a href="https://github.com/paritytech/cargo-contract/blob/71525f9ec5f21e6113a614c2fb4d1eb5e62ebf8b/src/cmd/build.rs#L247">cargo-contract/cmd/build.rs#L247</a>.</p>
+<h3><a class="header" href="#12-keep-debug-info-from-wasm-opt" id="12-keep-debug-info-from-wasm-opt">1.2 Keep debug info from <code>wasm-opt</code></a></h3>
+<p><code>cargo-contract</code> passes <code>debug_info: false</code> to <code>wasm-opt</code>, so the debug-info will be always optimized 
+when we run <code>wasm-opt</code>, the code is here: <a href="https://github.com/paritytech/cargo-contract/blob/71525f9ec5f21e6113a614c2fb4d1eb5e62ebf8b/src/cmd/build.rs#L267">cargo-contract/cmd/build.rs#L267</a>.</p>
+<h3><a class="header" href="#13-keep-debug-info-from-rustc" id="13-keep-debug-info-from-rustc">1.3 Keep debug info from <code>rustc</code></a></h3>
+<p><code>cargo-contract</code> executes realease build by default, here we can enable debug build or modify 
+the opt-level flag of <code>rustc</code> to keep debug infos at <a href="https://github.com/paritytech/cargo-contract/blob/71525f9ec5f21e6113a614c2fb4d1eb5e62ebf8b/src/cmd/build.rs#L137">cargo-contract/cmd/build.rs#L137</a>.</p>
+<h2><a class="header" href="#2-save-debug-info-from-the-scraper-of-pallet-contracts" id="2-save-debug-info-from-the-scraper-of-pallet-contracts">2. Save debug info from the scraper of <code>pallet-contracts</code></a></h2>
+<p>What happends to the <code>pallet-contracts</code> while we calling a contract?</p>
+<ul>
+<li><strong>Get the WASM binary from storage</strong></li>
+<li><strong>Inject gas meter to the contract</strong></li>
+<li>Inject stack height to the contract</li>
+<li>Put the contract into <code>sp-sandbox</code> and execute it</li>
+<li>Get the result from <code>sp-sandbox</code> and return the result to us</li>
+</ul>
+<h3><a class="header" href="#21-store-name-section-while-building-wasm-module" id="21-store-name-section-while-building-wasm-module">2.1 Store name section while building WASM module</a></h3>
+<ul>
+<li>PR: https://github.com/paritytech/parity-wasm/pull/300</li>
+</ul>
+<p><code>pallet-contracts</code> builds WASM modules from storage and drops custom sections by default,
+here we should get them back.</p>
+<h3><a class="header" href="#22-update-function-indices-in-name-section-while-injecting-gas-meter" id="22-update-function-indices-in-name-section-while-injecting-gas-meter">2.2 Update function indices in name section while injecting gas meter</a></h3>
+<ul>
+<li>PR:      <a href="https://github.com/paritytech/wasm-utils/pull/146">paritytech/wasm-utils#146</a></li>
+<li>Source:  <a href="https://github.com/patractlabs/wasm-utils">patractlabs/wasm-utils#146</a></li>
+</ul>
+<p><code>pallet-contracts</code> reorders the indcies of functions in our WASM contracts after injecting gas memter
+to the WASM contracts at <a href="https://github.com/paritytech/wasm-utils/blob/d9432bafa9321f8e0e5b8a143f1ed858dbbbe272/src/gas/mod.rs#L467">paritytech/wasm-utils/gas/mod.rs#L467</a>, this will mess up the
+function indecies in name section that we can not get the correct backtraces.</p>
+<h2><a class="header" href="#3-impelment-wasm-backtrace-to-wasmi" id="3-impelment-wasm-backtrace-to-wasmi">3. Impelment WASM backtrace to WASMI</a></h2>
+<ul>
+<li>Source:  <a href="https://github.com/patractlabs/wasmi">patractlabs/wasmi</a></li>
+</ul>
+<p>Remember the last two steps in chapter 2, the core part of enabling WASM backtrace to pallet-contract
+is making <code>wasmi</code> support backtrace.</p>
+<p>The process of executing a function in the interpreter of wasmi is like:</p>
+<ul>
+<li>Invoke the target function</li>
+<li>call and call and call over again
+<ul>
+<li>Panic if the process breaks.</li>
+</ul>
+</li>
+</ul>
+<h3><a class="header" href="#31-add-function-info-field-to-funcref" id="31-add-function-info-field-to-funcref">3.1 Add function info field to <code>FuncRef</code></a></h3>
+<p><code>FuncRef</code> is the 'function' wasmi interpreter calling directly, so we need to embed the debug info
+into the <code>FuncRef</code> as the first time, source at <a href="https://github.com/patractlabs/wasmi/blob/v0.6.2/src/func.rs#L26">wasmi/func.rs#L26</a>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>//! patractlabs/wasmi/src/func.rs#L26
+/// ...
+pub struct FuncRef {
+    /// ...
+    /// Function name and index for debug
+    info: Option&lt;(usize, String)&gt;,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h3><a class="header" href="#32-set-function-info-using-name-section-while-parsing-wasm-modules" id="32-set-function-info-using-name-section-while-parsing-wasm-modules">3.2 Set function info using name section while parsing WASM modules</a></h3>
+<p>We alread have the <code>info</code> field in <code>FuncRef</code>, now we need to fill this field using name setciton 
+while parsing WASM modules, source at <a href="https://github.com/patractlabs/wasmi/blob/7a6feaea70f47aa6e62f097fb0d9a4ea0ce7d1fc/src/runner.rs#L1491">wasmi/module#L343</a>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>//! wasmi/src/module.rs#L343
+// ...
+if has_name_section {
+     if let Some(name) = function_names.get((index + import_count) as u32) {
+         func_instance = func_instance.set_info(index, name.to_string());
+     } else {
+         func_instance = func_instance.set_info(index, &quot;&lt;unknown&gt;&quot;.to_string());
+     }
+}
+// ...
+<span class="boring">}
+</span></code></pre></pre>
+<h3><a class="header" href="#33-make-the-interpreter-support-trace" id="33-make-the-interpreter-support-trace">3.3 Make the interpreter support <code>trace</code></a></h3>
+<p>However, we don't need to get infos of every functions but the panicked series in the stack of the
+interpreter, source at <a href="https://github.com/patractlabs/wasmi/blob/7a6feaea70f47aa6e62f097fb0d9a4ea0ce7d1fc/src/runner.rs#L1491">wasmi/runner.rs#L1491</a>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>//! wasmi/src/runner.rs#L1491
+/// Get the functions of current the stack
+pub fn trace(&amp;self) -&gt; Vec&lt;Option&lt;&amp;(usize, String)&gt;&gt; {
+    self.buf.iter().map(|f| f.info()).collect::&lt;Vec&lt;_&gt;&gt;()
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h3><a class="header" href="#34-gather-debug-infos-when-program-breaks" id="34-gather-debug-infos-when-program-breaks">3.4 Gather debug infos when program breaks</a></h3>
+<p>Just gather backtraces when we invoke function failed, source at <a href="https://github.com/patractlabs/wasmi/blob/7a6feaea70f47aa6e62f097fb0d9a4ea0ce7d1fc/src/func.rs#L170">wasmi/func.rs#L170</a>.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>//! wasmi/src/func.rs#L170
+// ...
+
+let res = interpreter.start_execution(externals);
+if let Err(trap) = res {
+let mut stack = interpreter
+    .trace()
+    .iter()
+    .map(|n| {
+        if let Some(info) = n {
+            format!(&quot;{:#}[{}]&quot;, rustc_demangle::demangle(&amp;info.1), info.0)
+        } else {
+            &quot;&lt;unknown&gt;&quot;.to_string()
+        }
+    })
+    .collect::&lt;Vec&lt;_&gt;&gt;();
+
+// Append the panicing trap
+stack.append(&amp;mut trap.wasm_trace().clone());
+stack.reverse();
+
+// Embed this info into the trap
+Err(trap.set_wasm_trace(stack))
+
+// ...
+<span class="boring">}
+</span></code></pre></pre>
+<h3><a class="header" href="#4-assembling-the-modules" id="4-assembling-the-modules">4. Assembling the modules</a></h3>
+<p>The last thing is assembling the modules above, if you compose like above, you'll got a <a href="https://github.com/patractlabs/europa">europa</a>.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>
