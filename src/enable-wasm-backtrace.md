@@ -134,7 +134,7 @@ to the WASM contracts at [paritytech/wasm-utils/gas/mod.rs#L467][wasm-utils/gas]
 function indecies in name section that we can not get the correct backtraces.
 
 
-## 3. Impelment WASM backtrace to WASMI
+## 3. Impelment WASM backtrace for WASMI
 
 * Source:  [patractlabs/wasmi](https://github.com/patractlabs/wasmi)
 
