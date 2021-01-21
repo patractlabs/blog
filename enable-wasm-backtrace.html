@@ -95,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">The Patract Labs Dev Blog</a></li><li class="spacer"></li><li class="chapter-item expanded "><a href="enable-wasm-backtrace.html" class="active"><strong aria-hidden="true">1.</strong> Enable WASM Backtrace</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">The Patract Labs Dev Blog</a></li><li class="spacer"></li><li class="chapter-item expanded "><a href="enable-wasm-backtrace.html" class="active"><strong aria-hidden="true">1.</strong> Enable WASM Backtrace</a></li><li class="chapter-item expanded "><a href="support-wasmtime-in-sandbox.html"><strong aria-hidden="true">2.</strong> Support wasmtime in sandbox</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -276,7 +276,7 @@ here we should get them back.</p>
 <p><code>pallet-contracts</code> reorders the indcies of functions in our WASM contracts after injecting gas memter
 to the WASM contracts at <a href="https://github.com/paritytech/wasm-utils/blob/d9432bafa9321f8e0e5b8a143f1ed858dbbbe272/src/gas/mod.rs#L467">paritytech/wasm-utils/gas/mod.rs#L467</a>, this will mess up the
 function indecies in name section that we can not get the correct backtraces.</p>
-<h2><a class="header" href="#3-impelment-wasm-backtrace-to-wasmi" id="3-impelment-wasm-backtrace-to-wasmi">3. Impelment WASM backtrace to WASMI</a></h2>
+<h2><a class="header" href="#3-impelment-wasm-backtrace-for-wasmi" id="3-impelment-wasm-backtrace-for-wasmi">3. Impelment WASM backtrace for WASMI</a></h2>
 <ul>
 <li>Source:  <a href="https://github.com/patractlabs/wasmi">patractlabs/wasmi</a></li>
 </ul>
@@ -383,6 +383,10 @@ Err(trap.set_wasm_trace(stack))
                         
 
                         
+                            <a rel="next" href="support-wasmtime-in-sandbox.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
 
                         <div style="clear: both"></div>
                     </nav>
@@ -396,6 +400,10 @@ Err(trap.set_wasm_trace(stack))
                     </a>
                 
 
+                
+                    <a rel="next" href="support-wasmtime-in-sandbox.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
                 
             </nav>
 

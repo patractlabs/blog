@@ -97,7 +97,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">The Patract Labs Dev Blog</a></li><li class="spacer"></li><li class="chapter-item expanded "><a href="enable-wasm-backtrace.html"><strong aria-hidden="true">1.</strong> Enable WASM Backtrace</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">The Patract Labs Dev Blog</a></li><li class="spacer"></li><li class="chapter-item expanded "><a href="enable-wasm-backtrace.html"><strong aria-hidden="true">1.</strong> Enable WASM Backtrace</a></li><li class="chapter-item expanded "><a href="support-wasmtime-in-sandbox.html"><strong aria-hidden="true">2.</strong> Support wasmtime in sandbox</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -174,7 +174,8 @@
 <p>Yep, a blog, fine, no more introduce, technical records here.</p>
 <h2><a class="header" href="#table-of-contents" id="table-of-contents">Table of Contents</a></h2>
 <ol>
-<li><a href="/enable-wasm-backtrace.html">Enable WASM Backtrace</a></li>
+<li><a href="https://patractlabs.github.io/blog/enable-wasm-backtrace.html">Enable WASM Backtrace</a></li>
+<li><a href="https://patractlabs.github.io/blog/support-wasmtime-in-sandbox.html">Support wasmtime in sandbox</a></li>
 </ol>
 <h2><a class="header" href="#license" id="license">LICENSE</a></h2>
 <p>MIT</p>
@@ -287,7 +288,7 @@ here we should get them back.</p>
 <p><code>pallet-contracts</code> reorders the indcies of functions in our WASM contracts after injecting gas memter
 to the WASM contracts at <a href="https://github.com/paritytech/wasm-utils/blob/d9432bafa9321f8e0e5b8a143f1ed858dbbbe272/src/gas/mod.rs#L467">paritytech/wasm-utils/gas/mod.rs#L467</a>, this will mess up the
 function indecies in name section that we can not get the correct backtraces.</p>
-<h2><a class="header" href="#3-impelment-wasm-backtrace-to-wasmi" id="3-impelment-wasm-backtrace-to-wasmi">3. Impelment WASM backtrace to WASMI</a></h2>
+<h2><a class="header" href="#3-impelment-wasm-backtrace-for-wasmi" id="3-impelment-wasm-backtrace-for-wasmi">3. Impelment WASM backtrace for WASMI</a></h2>
 <ul>
 <li>Source:  <a href="https://github.com/patractlabs/wasmi">patractlabs/wasmi</a></li>
 </ul>
@@ -382,6 +383,89 @@ Err(trap.set_wasm_trace(stack))
 </span></code></pre></pre>
 <h3><a class="header" href="#4-assembling-the-modules" id="4-assembling-the-modules">4. Assembling the modules</a></h3>
 <p>The last thing is assembling the modules above, if you compose like above, you'll got a <a href="https://github.com/patractlabs/europa">europa</a>.</p>
+<h1><a class="header" href="#support-wasmtime-in-sandbox" id="support-wasmtime-in-sandbox">Support wasmtime in sandbox</a></h1>
+<p>Just supported <a href="https://github.com/bytecodealliance/wasmtime">wasmtime</a> in the sandbox of <a href="https://github.com/patractlabs/europa">europa</a> these days, we 
+can execute ink! contracts using JIT and trace the panicking line numbers of the rust 
+code with DWARF for now.</p>
+<h2><a class="header" href="#1-the-arch-of-sandbox" id="1-the-arch-of-sandbox">1. The arch of sandbox</a></h2>
+<p>The <code>sandbox</code> we are talking here is <code>primitives/sandbox</code> which executes ink! contract
+in <code>pallet-contracts</code>, it abstracts a WASM layer that can adapt different wasm executors.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// Sandbox liner memory
+struct Memory { ... }
+
+/// WASM imports
+struct EnvironmentDefinitionBuilder&lt;T&gt; { ... }
+
+/// WASM module instance
+struct Instance { ... }
+<span class="boring">}
+</span></code></pre></pre>
+<h3><a class="header" href="#11-memory" id="11-memory">1.1 Memory</a></h3>
+<p>The host functions defined in <code>pallet-contracts</code> use <code>(ptr: u32, len: u32,)</code> as arguments
+since WASM only can accept integer.</p>
+<p>The process is like:</p>
+<ul>
+<li>(pallet-contract): Alloc memory from the liner memory of WASM</li>
+<li>(pallet-contract): Passing pointers into wasm interface</li>
+<li>(wasm-executor):   Get porinters and executue functions</li>
+<li>(wasm-executor):   Return result to pallet-contract</li>
+<li>(pallet-contract): Read result from liner memory through pointers</li>
+</ul>
+<h3><a class="header" href="#12-environment" id="12-environment">1.2 Environment</a></h3>
+<p>The environment in sandbox includes <code>Host Functions</code> and <code>Memory</code>, both memory and functions
+could be externed outside WASM module. It sets up the interaction between native machine and 
+wasm module.</p>
+<h3><a class="header" href="#13-instance" id="13-instance">1.3 Instance</a></h3>
+<p>WASM module with human friendly interfaces comes to instance, it used for invoking functions
+in the sandbox.</p>
+<h2><a class="header" href="#2-wasmtime" id="2-wasmtime">2. Wasmtime</a></h2>
+<p>There are not a lot of trouble adapting wasmtime into the sandbox, passing generic types to 
+the host function may be the one could be mentioned.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn wrap_fn&lt;T&gt;(store: &amp;Store, state: usize, f: usize, sig: FunctionType) -&gt; Func {
+	let func = move |_: Caller&lt;'_&gt;, args: &amp;[Val], results: &amp;mut [Val]| {
+		let mut inner_args = vec![];
+		for arg in args {
+			if let Some(arg) = from_val(arg.clone()) {
+				inner_args.push(arg);
+			} else {
+				return Err(Trap::new(&quot;Could not wrap host function&quot;));
+			}
+		}
+
+		// HACK the LIFETIME
+		//
+		// # Safety
+		//
+		// Runtime only run for one call.
+		let state: &amp;mut T = unsafe { mem::transmute(state) };
+		let func: HostFuncType&lt;T&gt; = unsafe { mem::transmute(f) };
+		match func(state, &amp;inner_args) {
+			Ok(ret) =&gt; {
+				if let Some(ret) = from_ret_val(ret) {
+					results[0] = ret;
+				}
+				Ok(())
+			}
+			Err(_) =&gt; Err(Trap::new(&quot;Could not wrap host function&quot;)),
+		}
+	};
+	Func::new(store, wasmtime_sig(sig), func)
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Likewise, we pass pointers to the <code>Func</code> struct of wasmtime with <code>unsafe</code> code that we can define
+our host functions.</p>
+<h2><a class="header" href="#3-dwarf" id="3-dwarf">3. DWARF</a></h2>
+<p>The support of DWARF in wasm is still in an early stage for now, which hasn't been written into the
+SPEC, but an document <a href="https://yurydelendik.github.io/webassembly-dwarf/">DWARF for WebAssembly</a> has introduced it.</p>
+<p>As a result, we use the <code>DWARF</code> implementation in wasmtime directly now, it could be enable with 
+envrionment <code>WASM_BACKTRACE_DETAILS=1</code> as how it works in wasmtime.</p>
 
                     </main>
 
